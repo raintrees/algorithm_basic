@@ -1,0 +1,137 @@
+package class02;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * 一个数组中有一种数出现K次，其他数都出现了M次
+ */
+public class Code03_KM {
+    //region 一个数组中有一种数出现K次，其他数都出现了M次，已知M > 1，K < M，
+    // 找到出现了K次的数,要求额外空间复杂度O(1)，时间复杂度O(N)
+    public static int getOnlyKTimes(int[] arr, int k, int m) {
+        int[] help = new int[32];
+        for (int num : arr) {
+            for (int i = 31; i >= 0; i--) {
+                help[i] += ((num >> i) & 1);
+            }
+        }
+
+        int ans = 0;
+        for (int i = 0; i < help.length; i++) {
+            if (help[i] % m != 0) {
+                if (help[i] % m == k) {
+                    ans |= (1 << i);
+                } else {
+                    return -1;
+                }
+            }
+        }
+
+        if (ans == 0) {
+            int count = 0;
+            for (int num : arr) {
+                if (num == 0) count++;
+
+            }
+            if (count != k) {
+                return -1;
+            }
+        }
+        return ans;
+
+    }
+    //endregion
+
+
+    public static int test(int[] arr, int k, int m) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int num : arr) {
+            if (map.containsKey(num)) {
+                map.put(num, map.get(num) + 1);
+            } else {
+                map.put(num, 1);
+            }
+        }
+
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            if (entry.getValue() == k) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
+    public static int randomNumber(int range) {
+        return (int) (Math.random() * (range + 1)) - (int) (Math.random() * (range + 1));
+    }
+
+    public static int[] randomArray(int maxKinds, int range, int k, int m) {
+        //出现k次的数
+        int kNum = randomNumber(range);
+        //k的值
+        int kTimes = Math.random() < 0.5 ? k : (int) ((Math.random() * (m - 1)) + 1);
+
+        int kindNum = (int) (Math.random() * maxKinds) + 2;
+        int[] arr = new int[kTimes + (kindNum - 1) * m];
+        int index = 0;
+        for (; index < kTimes; index++) {
+            arr[index] = kNum;
+        }
+        kindNum--;
+        Set<Integer> set = new HashSet<>();
+        set.add(kNum);
+        while (kindNum-- != 0) {
+            int nextNum = 0;
+            do {
+                nextNum = randomNumber(range);
+            } while (set.contains(nextNum));
+            set.add(nextNum);
+            for (int i = 0; i < m; i++) {
+                arr[index++] = nextNum;
+            }
+        }
+        // arr 填好了
+        for (int i = 0; i < arr.length; i++) {
+            // i 位置的数，我想随机和j位置的数做交换
+            int j = (int) (Math.random() * arr.length);// 0 ~ N-1
+            int tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+        }
+        return arr;
+    }
+
+    // 为了测试
+    public static void main(String[] args) {
+        int kinds = 5;
+        int range = 30;
+        int testTime = 1;
+        int max = 9;
+        System.out.println("测试开始");
+        for (int i = 0; i < testTime; i++) {
+            int a = (int) (Math.random() * max) + 1; // a 1 ~ 9
+            int b = (int) (Math.random() * max) + 1; // b 1 ~ 9
+            int k = Math.min(a, b);
+            int m = Math.max(a, b);
+            // k < m
+            if (k == m) {
+                m++;
+            }
+            int[] arr = randomArray(kinds, range, k, m);
+            int ans1 = test(arr, k, m);
+            int ans2 = getOnlyKTimes(arr, k, m);
+            if (ans1 != ans2) {
+                System.out.println(ans1);
+                System.out.println(ans2);
+                System.out.println("出错了！");
+            }
+        }
+        System.out.println("测试结束");
+        int[] arr1 = {3, 3, 2, 3, 1, 1, 1, 3, 1, 3, 1, 3, 1};
+        System.out.println(getOnlyKTimes(arr1, 1, 6));
+    }
+
+}

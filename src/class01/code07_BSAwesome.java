@@ -5,7 +5,6 @@ package class01;
  */
 public class code07_BSAwesome {
 
-
     public static int bsAwesome(int[] arr) {
         if (arr == null || arr.length == 0) return -1;
 
