@@ -3,27 +3,25 @@ package class01;
 import duishuqi.ForSort;
 
 /**
- * 选择排序
+ * 冒泡排序
  */
-public class Code01_SelectionSort {
+public class Code02_BubbleSort {
 
     /**
-     * 0 ~ N-1 找最小值
-     * 1 ~ N-1 min
-     * 2 ~ N-1 min
-     * ...
-     * N-1 ~ N-1 min
+     * 0 - n-1 max
+     * 0- n-2 max
+     * 0 - n-3 max
      *
      * @param arr
      */
-    public static void selectionSort(int[] arr) {
+    public static void bubbleSort(int[] arr) {
         if (arr == null || arr.length < 2) return;
         for (int i = 0; i < arr.length; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < arr.length; j++) {
-                minIndex = arr[i] > arr[j] ? j : minIndex;
+            for (int j = 0; j < arr.length - i - 1; j++) {
+                if (arr[j] > arr[j - 1]) {
+                    swap(arr, j, j + 1);
+                }
             }
-            swap(arr, minIndex, i);
         }
     }
 
@@ -42,7 +40,7 @@ public class Code01_SelectionSort {
             int[] ints = ForSort.generateRandomArray(maxSize, maxValue);
             int[] copyArray = ForSort.copyArray(ints);
 
-            selectionSort(ints);
+            bubbleSort(ints);
             ForSort.comparator(copyArray);
 
             if (!ForSort.isEqual(ints, copyArray)) {
@@ -54,4 +52,5 @@ public class Code01_SelectionSort {
         }
         System.out.println(succeed ? "Nice!" : "Fucking fucked!");
     }
+
 }
