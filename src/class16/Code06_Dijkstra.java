@@ -48,5 +48,114 @@ public class Code06_Dijkstra {
         return minNode;
     }
 
+    //改进
+    public static Map<Node, Integer> dijkstra2(Node from, int size) {
+        Map<Node, Integer> distanceMap = new HashMap<>();
+        NodeHeap nodeHeap = new NodeHeap(size);
+        nodeHeap.addOrUpdateOrIgnore(from, 0);
+        while (!nodeHeap.isEmpty()) {
+            NodeRecord nodeRecord = nodeHeap.pop();
+            for (Edge edge : nodeRecord.node.edges) {
+                nodeHeap.addOrUpdateOrIgnore(edge.to, edge.weight + nodeRecord.distance);
+            }
+            distanceMap.put(nodeRecord.node, nodeRecord.distance);
+        }
+        return distanceMap;
+    }
+
+    private static class NodeRecord {
+        public Node node;
+        public int distance;
+
+        public NodeRecord(Node node, int distance) {
+            this.node = node;
+            this.distance = distance;
+        }
+    }
+
+    //手写加强堆
+    private static class NodeHeap {
+        private Node[] nodes;
+        //反向索引表
+        private HashMap<Node, Integer> indexMap;
+        //距离表
+        private HashMap<Node, Integer> distanceMap;
+        private int heapSize;
+
+        public NodeHeap(int size) {
+            nodes = new Node[size];
+            indexMap = new HashMap<>();
+            distanceMap = new HashMap<>();
+            heapSize = 0;
+        }
+
+        public boolean isEmpty() {
+            return heapSize == 0;
+        }
+
+        private boolean isEntered(Node node) {
+            return indexMap.containsKey(node);
+        }
+
+        private boolean inHeap(Node node) {
+            return isEntered(node) && indexMap.get(node) != -1;
+        }
+
+        // 有一个点叫node，现在发现了一个从源节点出发到达node的距离为distance
+        // 判断要不要更新，如果需要的话，就更新
+        public void addOrUpdateOrIgnore(Node node, int distance) {
+            if (!isEntered(node)) {//add，新节点
+                nodes[heapSize] = node;
+                indexMap.put(node, heapSize);
+                distanceMap.put(node, distance);
+                heapInsert(heapSize++);
+            }
+            if (inHeap(node)) {//update,更新
+                distanceMap.put(node, Math.min(distanceMap.get(node), distance));
+                heapInsert(indexMap.get(node));
+            }
+        }
+
+        public NodeRecord pop() {
+            Node node = nodes[0];
+            int distance = distanceMap.get(node);
+            swap(0, --heapSize);
+            indexMap.put(node, -1);
+            distanceMap.remove(node);
+            heapify(0);
+            return new NodeRecord(node, distance);
+        }
+
+
+        private void heapInsert(int index) {
+            while (distanceMap.get(nodes[index]) < distanceMap.get(nodes[(index - 1) / 2])) {
+                swap(index, (index - 1) / 2);
+                index = (index - 1) / 2;
+            }
+        }
+
+        private void heapify(int index) {
+            int left = index * 2 + 1;
+            while (left < heapSize) {
+                int smallest = left + 1 < heapSize && distanceMap.get(nodes[left + 1]) < distanceMap.get(nodes[left]) ? left + 1 : left;
+                smallest = distanceMap.get(nodes[index]) < distanceMap.get(nodes[smallest]) ? index : smallest;
+                if (smallest == index) return;
+                swap(smallest, index);
+                index = smallest;
+                left = index * 2 + 1;
+            }
+        }
+
+        private void swap(int i, int j) {
+            indexMap.put(nodes[i], j);
+            indexMap.put(nodes[j], i);
+            Node temp = nodes[i];
+            nodes[i] = nodes[j];
+            nodes[j] = temp;
+        }
+
+
+    }
+
 
 }
